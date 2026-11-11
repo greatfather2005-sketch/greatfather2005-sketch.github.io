@@ -58,14 +58,45 @@
   .btn:hover { transform: translateY(-2px); }
   .btn-wa { background: #25d366; color: #fff; }
   .btn-yt { background: var(--gold); color: var(--navy); }
-  main { max-width: 1100px; margin: 0 auto; padding: 36px 20px 20px; }
+  nav.sections-nav {
+    background: #fff;
+    border-bottom: 1px solid #e3e7ee;
+    text-align: center;
+    padding: 10px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  nav.sections-nav a {
+    display: inline-block;
+    margin: 4px 6px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    background: #eef1f6;
+    color: var(--navy);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: .9rem;
+  }
+  nav.sections-nav a:hover { background: var(--gold); color: var(--navy); }
+  main { max-width: 1100px; margin: 0 auto; padding: 30px 20px 20px; }
+  .video-section { margin-bottom: 40px; }
   h2 {
     color: var(--navy);
     font-size: 1.4rem;
     border-bottom: 3px solid var(--gold);
     display: inline-block;
     padding-bottom: 6px;
-    margin-bottom: 22px;
+    margin-bottom: 6px;
+  }
+  .section-sub { color: #5b6675; font-size: .92rem; margin-bottom: 20px; }
+  .coming-soon {
+    color: #6b7686;
+    font-style: italic;
+    background: #fff;
+    border: 1px dashed #c4ccd8;
+    border-radius: 12px;
+    padding: 18px 22px;
   }
   .grid {
     display: grid;
@@ -119,9 +150,33 @@
     <a class="btn btn-yt" href="https://www.youtube.com/@MrMohammedNabilKhalil" target="_blank" rel="noopener">YouTube Channel</a>
   </div>
 </header>
+<nav class="sections-nav">
+  <a href="#british">British</a>
+  <a href="#american">American</a>
+  <a href="#national">National</a>
+  <a href="#language">Language</a>
+  <a href="#stories">Stories</a>
+  <a href="#sounds">Sounds</a>
+</nav>
 <main>
-  <h2>Latest Lessons and Stories</h2>
-  <div class="grid">
+  <section class="video-section" id="british">
+    <h2>British</h2>
+    <p class="section-sub">British curriculum lessons</p>
+    <div class="grid">
+      <a class="card" href="https://youtu.be/spTSVtbuCgI" target="_blank" rel="noopener">
+        <img src="https://i.ytimg.com/vi/spTSVtbuCgI/hqdefault.jpg" alt="Word Classes (Parts of Speech) Year 6 - The 8 Word Classes Explained + Checkpoint Practice" loading="lazy">
+        <span class="card-title">Word Classes (Parts of Speech) Year 6 - The 8 Word Classes Explained + Checkpoint Practice</span>
+      </a>
+      <a class="card" href="https://youtu.be/FHB_7YI30v8" target="_blank" rel="noopener">
+        <img src="https://i.ytimg.com/vi/FHB_7YI30v8/hqdefault.jpg" alt="Word Classes أقسام الكلام - شرح Year 6 بالعربي والإنجليزي + أسئلة Checkpoint" loading="lazy">
+        <span class="card-title">Word Classes أقسام الكلام - شرح Year 6 بالعربي والإنجليزي + أسئلة Checkpoint</span>
+      </a>
+    </div>
+  </section>
+  <section class="video-section" id="american">
+    <h2>American</h2>
+    <p class="section-sub">American curriculum lessons</p>
+    <div class="grid">
       <a class="card" href="https://youtu.be/9pdFLLiU67M" target="_blank" rel="noopener">
         <img src="https://i.ytimg.com/vi/9pdFLLiU67M/hqdefault.jpg" alt="Vocabulary Workshop Level E Unit 4 | 20 Words + 25 Practice Questions" loading="lazy">
         <span class="card-title">Vocabulary Workshop Level E Unit 4 | 20 Words + 25 Practice Questions</span>
@@ -130,9 +185,9 @@
         <img src="https://i.ytimg.com/vi/Kzb9s8W8Ba0/hqdefault.jpg" alt="Vocabulary Workshop Level E Unit 3 - All 20 Words Explained | Grade 10 English" loading="lazy">
         <span class="card-title">Vocabulary Workshop Level E Unit 3 - All 20 Words Explained | Grade 10 English</span>
       </a>
-      <a class="card" href="https://youtu.be/spTSVtbuCgI" target="_blank" rel="noopener">
-        <img src="https://i.ytimg.com/vi/spTSVtbuCgI/hqdefault.jpg" alt="Word Classes (Parts of Speech) Year 6 - The 8 Word Classes Explained + Checkpoint Practice" loading="lazy">
-        <span class="card-title">Word Classes (Parts of Speech) Year 6 - The 8 Word Classes Explained + Checkpoint Practice</span>
+      <a class="card" href="https://youtu.be/2BkNAPVTw5E" target="_blank" rel="noopener">
+        <img src="https://i.ytimg.com/vi/2BkNAPVTw5E/hqdefault.jpg" alt="Spelling Bee: 40 Words Pronunciation, Meaning &amp; Practice Quiz | English Vocabulary" loading="lazy">
+        <span class="card-title">Spelling Bee: 40 Words Pronunciation, Meaning &amp; Practice Quiz | English Vocabulary</span>
       </a>
       <a class="card" href="https://youtu.be/ceG0LU6XnnU" target="_blank" rel="noopener">
         <img src="https://i.ytimg.com/vi/ceG0LU6XnnU/hqdefault.jpg" alt="Subject-Verb Agreement: Rules, Exceptions &amp; Exam Tricks | American Diploma English Grades 10-12" loading="lazy">
@@ -142,13 +197,28 @@
         <img src="https://i.ytimg.com/vi/OUb8uc9RBCo/hqdefault.jpg" alt="Subject-Verb Agreement شرح توافق الفاعل والفعل بالعربي والإنجليزي | American Diploma" loading="lazy">
         <span class="card-title">Subject-Verb Agreement شرح توافق الفاعل والفعل بالعربي والإنجليزي | American Diploma</span>
       </a>
-      <a class="card" href="https://youtu.be/FHB_7YI30v8" target="_blank" rel="noopener">
-        <img src="https://i.ytimg.com/vi/FHB_7YI30v8/hqdefault.jpg" alt="Word Classes أقسام الكلام - شرح Year 6 بالعربي والإنجليزي + أسئلة Checkpoint" loading="lazy">
-        <span class="card-title">Word Classes أقسام الكلام - شرح Year 6 بالعربي والإنجليزي + أسئلة Checkpoint</span>
+    </div>
+  </section>
+  <section class="video-section" id="national">
+    <h2>National</h2>
+    <p class="section-sub">National curriculum lessons</p>
+    <p class="coming-soon">New lessons coming soon.</p>
+  </section>
+  <section class="video-section" id="language">
+    <h2>Language</h2>
+    <p class="section-sub">Grammar, language elements and writing skills</p>
+    <div class="grid">
+      <a class="card" href="https://youtu.be/1dzWKnY54mc" target="_blank" rel="noopener">
+        <img src="https://i.ytimg.com/vi/1dzWKnY54mc/hqdefault.jpg" alt="Language Elements: Grammar, Usage and Mechanics | Conjunctions" loading="lazy">
+        <span class="card-title">Language Elements: Grammar, Usage and Mechanics | Conjunctions</span>
       </a>
-      <a class="card" href="https://youtu.be/oh7-FaaUWF4" target="_blank" rel="noopener">
-        <img src="https://i.ytimg.com/vi/oh7-FaaUWF4/hqdefault.jpg" alt="Jack and the Beanstalk | Educational Story | British English Reading + Arabic" loading="lazy">
-        <span class="card-title">Jack and the Beanstalk | Educational Story | British English Reading + Arabic</span>
+      <a class="card" href="https://youtu.be/yJd7BAIFqr8" target="_blank" rel="noopener">
+        <img src="https://i.ytimg.com/vi/yJd7BAIFqr8/hqdefault.jpg" alt="Language Elements: Grammar, Usage and Mechanics | Verbs" loading="lazy">
+        <span class="card-title">Language Elements: Grammar, Usage and Mechanics | Verbs</span>
+      </a>
+      <a class="card" href="https://youtu.be/U1QMJcZJzoU" target="_blank" rel="noopener">
+        <img src="https://i.ytimg.com/vi/U1QMJcZJzoU/hqdefault.jpg" alt="Language Elements: Grammar, Usage and Mechanics | Modifiers" loading="lazy">
+        <span class="card-title">Language Elements: Grammar, Usage and Mechanics | Modifiers</span>
       </a>
       <a class="card" href="https://youtu.be/V5qKSwJlmI8" target="_blank" rel="noopener">
         <img src="https://i.ytimg.com/vi/V5qKSwJlmI8/hqdefault.jpg" alt="How to Write Instructions: Clear Steps, Key Features &amp; Practice Quiz | English Writing Skills" loading="lazy">
@@ -162,21 +232,19 @@
         <img src="https://i.ytimg.com/vi/BwMarEHsb8U/hqdefault.jpg" alt="Persuasive Writing: Ethos, Pathos, Logos &amp; the Persuader&#x27;s Map | English Writing Skills" loading="lazy">
         <span class="card-title">Persuasive Writing: Ethos, Pathos, Logos &amp; the Persuader&#x27;s Map | English Writing Skills</span>
       </a>
-      <a class="card" href="https://youtu.be/1dzWKnY54mc" target="_blank" rel="noopener">
-        <img src="https://i.ytimg.com/vi/1dzWKnY54mc/hqdefault.jpg" alt="Language Elements: Grammar, Usage and Mechanics | Conjunctions" loading="lazy">
-        <span class="card-title">Language Elements: Grammar, Usage and Mechanics | Conjunctions</span>
+      <a class="card" href="https://youtu.be/LT0n5RU5ldk" target="_blank" rel="noopener">
+        <img src="https://i.ytimg.com/vi/LT0n5RU5ldk/hqdefault.jpg" alt="Writing Fiction: Genres, Elements, and the Writing Process" loading="lazy">
+        <span class="card-title">Writing Fiction: Genres, Elements, and the Writing Process</span>
       </a>
-      <a class="card" href="https://youtu.be/yJd7BAIFqr8" target="_blank" rel="noopener">
-        <img src="https://i.ytimg.com/vi/yJd7BAIFqr8/hqdefault.jpg" alt="Language Elements: Grammar, Usage and Mechanics | Verbs" loading="lazy">
-        <span class="card-title">Language Elements: Grammar, Usage and Mechanics | Verbs</span>
-      </a>
-      <a class="card" href="https://youtu.be/U1QMJcZJzoU" target="_blank" rel="noopener">
-        <img src="https://i.ytimg.com/vi/U1QMJcZJzoU/hqdefault.jpg" alt="Language Elements: Grammar, Usage and Mechanics | Modifiers" loading="lazy">
-        <span class="card-title">Language Elements: Grammar, Usage and Mechanics | Modifiers</span>
-      </a>
-      <a class="card" href="https://youtu.be/2BkNAPVTw5E" target="_blank" rel="noopener">
-        <img src="https://i.ytimg.com/vi/2BkNAPVTw5E/hqdefault.jpg" alt="Spelling Bee: 40 Words Pronunciation, Meaning &amp; Practice Quiz | English Vocabulary" loading="lazy">
-        <span class="card-title">Spelling Bee: 40 Words Pronunciation, Meaning &amp; Practice Quiz | English Vocabulary</span>
+    </div>
+  </section>
+  <section class="video-section" id="stories">
+    <h2>Stories</h2>
+    <p class="section-sub">Stories with Arabic support</p>
+    <div class="grid">
+      <a class="card" href="https://youtu.be/oh7-FaaUWF4" target="_blank" rel="noopener">
+        <img src="https://i.ytimg.com/vi/oh7-FaaUWF4/hqdefault.jpg" alt="Jack and the Beanstalk | Educational Story | British English Reading + Arabic" loading="lazy">
+        <span class="card-title">Jack and the Beanstalk | Educational Story | British English Reading + Arabic</span>
       </a>
       <a class="card" href="https://youtu.be/OUv-h_9qIqc" target="_blank" rel="noopener">
         <img src="https://i.ytimg.com/vi/OUv-h_9qIqc/hqdefault.jpg" alt="The Fisherman and the Jinni | Educational Story | British English Reading + Arabic" loading="lazy">
@@ -214,15 +282,25 @@
         <img src="https://i.ytimg.com/vi/i2h_dbt2hMc/hqdefault.jpg" alt="Aladdin and the Magic Lamp | Educational Story | British English Reading + Arabic" loading="lazy">
         <span class="card-title">Aladdin and the Magic Lamp | Educational Story | British English Reading + Arabic</span>
       </a>
-      <a class="card" href="https://youtu.be/LT0n5RU5ldk" target="_blank" rel="noopener">
-        <img src="https://i.ytimg.com/vi/LT0n5RU5ldk/hqdefault.jpg" alt="Writing Fiction: Genres, Elements, and the Writing Process" loading="lazy">
-        <span class="card-title">Writing Fiction: Genres, Elements, and the Writing Process</span>
-      </a>
       <a class="card" href="https://youtu.be/ATXK6yehSbs" target="_blank" rel="noopener">
         <img src="https://i.ytimg.com/vi/ATXK6yehSbs/hqdefault.jpg" alt="Little Red Riding Hood | Story Elements and Questions | British English + Arabic" loading="lazy">
         <span class="card-title">Little Red Riding Hood | Story Elements and Questions | British English + Arabic</span>
       </a>
-  </div>
+      <a class="card" href="https://youtu.be/tHjnB8qXd1Q" target="_blank" rel="noopener">
+        <img src="https://i.ytimg.com/vi/tHjnB8qXd1Q/hqdefault.jpg" alt="The Town Mouse and the Country Mouse | Educational Story | British English Reading + Arabic" loading="lazy">
+        <span class="card-title">The Town Mouse and the Country Mouse | Educational Story | British English Reading + Arabic</span>
+      </a>
+      <a class="card" href="https://youtu.be/tEHl0Q7SVKU" target="_blank" rel="noopener">
+        <img src="https://i.ytimg.com/vi/tEHl0Q7SVKU/hqdefault.jpg" alt="Snow White and the Seven Dwarfs | Educational Story | British English Reading + Arabic" loading="lazy">
+        <span class="card-title">Snow White and the Seven Dwarfs | Educational Story | British English Reading + Arabic</span>
+      </a>
+    </div>
+  </section>
+  <section class="video-section" id="sounds">
+    <h2>Sounds</h2>
+    <p class="section-sub">Sounds and songs</p>
+    <p class="coming-soon">New lessons coming soon.</p>
+  </section>
   <div class="platform-note">
     <strong>Student platform coming soon.</strong><br>
     A dedicated learning platform with grade-based access for students is on the way.
