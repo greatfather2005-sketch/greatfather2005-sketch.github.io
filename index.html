@@ -186,6 +186,26 @@
   .admin-msg { margin-top: 12px; color: #a33; font-size: .9rem; min-height: 1.2em; }
   .admin-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid #eef1f6; padding-bottom: 10px; }
   .admin-head span { color: #5b6675; font-size: .9rem; }
+  #pdfFilter {
+    width: 100%;
+    max-width: 420px;
+    margin: 8px 0 12px;
+    padding: 8px 14px;
+    border: 1px solid #cfd6e2;
+    border-radius: 10px;
+    font-size: .9rem;
+  }
+  .pdf-list { list-style: none; max-height: 420px; overflow-y: auto; border-top: 1px solid #eef1f6; }
+  .pdf-list li { border-bottom: 1px solid #eef1f6; padding: 9px 4px; }
+  .pdf-list a {
+    color: var(--navy);
+    text-decoration: none;
+    font-size: .9rem;
+    font-weight: 600;
+  }
+  .pdf-list a:hover { color: var(--navy2); }
+  .pdf-list .pdf-tag { color: #8a94a5; font-weight: 400; font-size: .8rem; margin-left: 8px; }
+  .pdf-list .pdf-empty { color: #6b7686; border-bottom: 0; }
   .admin-note { margin-top: 12px; color: #6b7686; font-size: .82rem; }
   @media (max-width: 480px) {
     header h1 { font-size: 1.45rem; }
@@ -532,9 +552,10 @@
       <p>Create and manage exams, students and results in the assessment portal (owner sign-in is required there as well).</p>
       <p><a class="admin-btn" href="https://mnk-academy-portal.web.app/" target="_blank" rel="noopener">Open Assessment Portal</a></p>
       <h3>Academy PDF Files</h3>
-      <p>Academy PDF files live in the owner's Google Drive. Open Drive while signed in with this same Google account to reach them.</p>
-      <p><a class="admin-btn" href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener">Open Google Drive</a></p>
-      <p class="admin-note">Student PDF files are shared with anyone who has their link; model-answer and teacher files open only for the owner Google account.</p>
+      <p>The file list loads only for the signed-in owner account (checked again on Google's servers, not just in this page).</p>
+      <input id="pdfFilter" type="search" placeholder="Filter PDF files by name..." aria-label="Filter PDF files by name">
+      <ul id="pdfList" class="pdf-list"><li class="pdf-empty">Loading...</li></ul>
+      <p class="admin-note">Student PDF files are shared with anyone who has their link; model-answer and teacher files open only for the owner Google account. <a href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener">Open Google Drive</a></p>
     </div>
   </section>
   <div class="platform-note">
@@ -579,6 +600,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getFirestore, doc, getDoc }
+  from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
 const OWNER_EMAIL = "greatfather2005@gmail.com";
 const firebaseConfig = {
@@ -589,12 +612,62 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
 const gate = document.getElementById('adminGate');
 const panel = document.getElementById('adminPanel');
 const msg = document.getElementById('adminMsg');
 const who = document.getElementById('adminWho');
+let PDF_ITEMS = [];
+function renderPdfs(filter) {
+  const ul = document.getElementById('pdfList');
+  ul.innerHTML = '';
+  const q = (filter || '').toLowerCase();
+  PDF_ITEMS.forEach(function (p) {
+    if (q && p.n.toLowerCase().indexOf(q) === -1) { return; }
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = p.u;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = p.n.replace(/\.pdf$/i, '');
+    const tag = /model answers|teacher/i.test(p.n)
+      ? 'owner only'
+      : (/student/i.test(p.n) ? 'student' : '');
+    if (tag) {
+      const s = document.createElement('span');
+      s.className = 'pdf-tag';
+      s.textContent = tag;
+      a.appendChild(s);
+    }
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
+  if (!ul.children.length) {
+    const li = document.createElement('li');
+    li.className = 'pdf-empty';
+    li.textContent = PDF_ITEMS.length ? 'No files match this filter.' : 'Loading...';
+    ul.appendChild(li);
+  }
+}
+async function loadCatalog() {
+  const ul = document.getElementById('pdfList');
+  try {
+    const snap = await getDoc(doc(db, 'adminCatalog', 'pdfs'));
+    if (snap.exists()) {
+      PDF_ITEMS = snap.data().items || [];
+      renderPdfs('');
+    } else {
+      ul.innerHTML = '<li class="pdf-empty">PDF catalog not set up yet.</li>';
+    }
+  } catch (e) {
+    ul.innerHTML = '<li class="pdf-empty">Could not load the PDF catalog.</li>';
+  }
+}
+document.getElementById('pdfFilter').addEventListener('input', function (e) {
+  renderPdfs(e.target.value);
+});
 document.getElementById('adminSignIn').addEventListener('click', function () {
   msg.textContent = '';
   signInWithPopup(auth, provider).catch(function (err) {
@@ -611,9 +684,11 @@ onAuthStateChanged(auth, function (user) {
     gate.hidden = true;
     panel.hidden = false;
     who.textContent = 'Signed in as ' + user.email;
+    loadCatalog();
   } else {
     panel.hidden = true;
     gate.hidden = false;
+    PDF_ITEMS = [];
     if (user) {
       signOut(auth);
       msg.textContent = 'This Google account is not authorized for the admin area.';
