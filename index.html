@@ -137,6 +137,77 @@
     font-size: .85rem;
     padding: 26px 16px 34px;
   }
+
+  /* --- site search --- */
+  nav.sections-nav input#siteSearch {
+    display: inline-block;
+    margin: 4px 6px;
+    padding: 7px 14px;
+    border: 1px solid #cfd6e2;
+    border-radius: 20px;
+    font-size: .9rem;
+    width: min(280px, 82vw);
+    vertical-align: middle;
+    color: var(--ink);
+  }
+  nav.sections-nav input#siteSearch:focus { outline: 2px solid var(--gold); border-color: var(--gold); }
+  #noResults {
+    text-align: center;
+    color: #6b7686;
+    font-style: italic;
+    padding: 26px 10px 6px;
+  }
+  /* --- owner admin --- */
+  .admin-box {
+    background: #fff;
+    border: 1px solid #e3e7ee;
+    border-radius: 12px;
+    padding: 22px 24px;
+    box-shadow: 0 2px 10px rgba(14,34,64,.08);
+  }
+  .admin-box h3 { color: var(--navy); margin: 18px 0 6px; font-size: 1.05rem; }
+  .admin-box h3:first-of-type { margin-top: 14px; }
+  .admin-btn {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 22px;
+    border: 0;
+    border-radius: 24px;
+    background: var(--navy);
+    color: #fff;
+    font-weight: 700;
+    font-size: .92rem;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .admin-btn:hover { background: var(--navy2); }
+  .admin-btn-ghost { background: #eef1f6; color: var(--navy); margin-top: 0; }
+  .admin-btn-ghost:hover { background: #e2e7f0; }
+  .admin-msg { margin-top: 12px; color: #a33; font-size: .9rem; min-height: 1.2em; }
+  .admin-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid #eef1f6; padding-bottom: 10px; }
+  .admin-head span { color: #5b6675; font-size: .9rem; }
+  #pdfFilter {
+    width: 100%;
+    max-width: 420px;
+    margin: 8px 0 12px;
+    padding: 8px 14px;
+    border: 1px solid #cfd6e2;
+    border-radius: 10px;
+    font-size: .9rem;
+  }
+  .pdf-list { list-style: none; max-height: 420px; overflow-y: auto; border-top: 1px solid #eef1f6; }
+  .pdf-list li { border-bottom: 1px solid #eef1f6; }
+  .pdf-list a {
+    display: block;
+    padding: 9px 4px;
+    color: var(--navy);
+    text-decoration: none;
+    font-size: .9rem;
+    font-weight: 600;
+  }
+  .pdf-list a:hover { color: var(--navy2); background: #f6f8fb; }
+  .pdf-list .pdf-tag { color: #8a94a5; font-weight: 400; font-size: .8rem; margin-left: 8px; }
+  .admin-note { margin-top: 12px; color: #6b7686; font-size: .82rem; }
   @media (max-width: 480px) {
     header h1 { font-size: 1.45rem; }
     .grid { grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -164,8 +235,11 @@
   <a href="#sounds">Sounds</a>
   <a href="#songs">Songs</a>
   <a href="#brief-explanation">Brief Explanation</a>
+  <a href="#admin">Admin</a>
+  <input id="siteSearch" type="search" placeholder="Search videos..." aria-label="Search videos">
 </nav>
 <main>
+  <p id="noResults" hidden>No matching videos. Try another word.</p>
   <section class="video-section" id="british">
     <h2>British</h2>
     <p class="section-sub">British curriculum lessons</p>
@@ -462,6 +536,28 @@
       </a>
     </div>
   </section>
+  <section class="video-section" id="admin">
+    <h2>Owner Admin</h2>
+    <p class="section-sub">Private area for the academy owner. Sign in with the owner Google account to reach the Interactive Assessments portal and the academy PDF files.</p>
+    <div id="adminGate" class="admin-box">
+      <p>This area is restricted to the academy owner. Sign in with Google to continue.</p>
+      <button id="adminSignIn" class="admin-btn" type="button">Sign in with Google</button>
+      <p id="adminMsg" class="admin-msg" role="status"></p>
+    </div>
+    <div id="adminPanel" class="admin-box" hidden>
+      <div class="admin-head">
+        <span id="adminWho"></span>
+        <button id="adminSignOut" class="admin-btn admin-btn-ghost" type="button">Sign out</button>
+      </div>
+      <h3>Interactive Assessments</h3>
+      <p>Create and manage exams, students and results in the assessment portal (owner sign-in is required there as well).</p>
+      <p><a class="admin-btn" href="https://mnk-academy-portal.web.app/" target="_blank" rel="noopener">Open Assessment Portal</a></p>
+      <h3>Academy PDF Files</h3>
+      <input id="pdfFilter" type="search" placeholder="Filter PDF files by name..." aria-label="Filter PDF files by name">
+      <ul id="pdfList" class="pdf-list"></ul>
+      <p class="admin-note">Model-answer and teacher files open only for the owner Google account. Student files are the same files linked publicly on this site.</p>
+    </div>
+  </section>
   <div class="platform-note">
     <strong>Student platform coming soon.</strong><br>
     A dedicated learning platform with grade-based access for students is on the way.
@@ -470,6 +566,123 @@
 <footer>
   Mr. Mohammed Nabil Khalil Academy &middot; Contact us on WhatsApp: +20 102 371 1755
 </footer>
+
+<script>
+(function () {
+  var input = document.getElementById('siteSearch');
+  var noRes = document.getElementById('noResults');
+  var sections = Array.prototype.slice.call(document.querySelectorAll('main section.video-section'));
+  function apply() {
+    var q = input.value.trim().toLowerCase();
+    var totalVisible = 0;
+    sections.forEach(function (sec) {
+      if (sec.id === 'admin') { return; }
+      var items = sec.querySelectorAll('.grid > *');
+      var vis = 0;
+      items.forEach(function (el) {
+        var t = (el.textContent || '').toLowerCase();
+        var img = el.querySelector('img');
+        if (img && img.alt) { t += ' ' + img.alt.toLowerCase(); }
+        var show = !q || t.indexOf(q) !== -1;
+        el.style.display = show ? '' : 'none';
+        if (show) { vis++; }
+      });
+      if (items.length) {
+        sec.style.display = (q && vis === 0) ? 'none' : '';
+        totalVisible += vis;
+      }
+    });
+    noRes.hidden = !q || totalVisible > 0;
+  }
+  input.addEventListener('input', apply);
+})();
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+const OWNER_EMAIL = "greatfather2005@gmail.com";
+const firebaseConfig = {
+  "apiKey": "AIzaSyAbkHTF4gKGGyJW7COU9dlQe5tyPGKdBG0",
+  "authDomain": "mnk-academy-portal.firebaseapp.com",
+  "projectId": "mnk-academy-portal",
+  "appId": "1:172755991211:web:5c14bd361654e6b1f815ee"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+const gate = document.getElementById('adminGate');
+const panel = document.getElementById('adminPanel');
+const msg = document.getElementById('adminMsg');
+const who = document.getElementById('adminWho');
+const PDFS = [];
+
+function renderPdfs(filter) {
+  const ul = document.getElementById('pdfList');
+  ul.innerHTML = '';
+  const q = (filter || '').toLowerCase();
+  PDFS.forEach(function (p) {
+    if (q && p.n.toLowerCase().indexOf(q) === -1) { return; }
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = p.u;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = p.n.replace(/\.pdf$/i, '');
+    const tag = /model answers|teacher/i.test(p.n)
+      ? 'owner only'
+      : (/student/i.test(p.n) ? 'student' : '');
+    if (tag) {
+      const s = document.createElement('span');
+      s.className = 'pdf-tag';
+      s.textContent = tag;
+      a.appendChild(s);
+    }
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
+  if (!ul.children.length) {
+    const li = document.createElement('li');
+    li.style.padding = '10px 4px';
+    li.style.color = '#6b7686';
+    li.textContent = 'No files match this filter.';
+    ul.appendChild(li);
+  }
+}
+
+document.getElementById('adminSignIn').addEventListener('click', function () {
+  msg.textContent = '';
+  signInWithPopup(auth, provider).catch(function (err) {
+    if (err && err.code === 'auth/popup-closed-by-user') { return; }
+    msg.textContent = 'Sign-in failed: ' + ((err && err.code) || 'unknown error');
+  });
+});
+document.getElementById('adminSignOut').addEventListener('click', function () {
+  signOut(auth);
+});
+document.getElementById('pdfFilter').addEventListener('input', function (e) {
+  renderPdfs(e.target.value);
+});
+
+onAuthStateChanged(auth, function (user) {
+  if (user && user.email === OWNER_EMAIL) {
+    gate.hidden = true;
+    panel.hidden = false;
+    who.textContent = 'Signed in as ' + user.email;
+    renderPdfs('');
+  } else {
+    panel.hidden = true;
+    gate.hidden = false;
+    if (user) {
+      signOut(auth);
+      msg.textContent = 'This Google account is not authorized for the admin area.';
+    }
+  }
+});
+</script>
 </body>
 </html>
 
