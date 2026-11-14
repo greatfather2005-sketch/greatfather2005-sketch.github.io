@@ -587,10 +587,8 @@
         el.style.display = show ? '' : 'none';
         if (show) { vis++; }
       });
-      if (items.length) {
-        sec.style.display = (q && vis === 0) ? 'none' : '';
-        totalVisible += vis;
-      }
+      sec.style.display = (q && vis === 0) ? 'none' : '';
+      totalVisible += vis;
     });
     noRes.hidden = !q || totalVisible > 0;
   }
