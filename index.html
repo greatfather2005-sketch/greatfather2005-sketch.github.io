@@ -689,6 +689,7 @@ onAuthStateChanged(auth, function (user) {
     panel.hidden = true;
     gate.hidden = false;
     PDF_ITEMS = [];
+    renderPdfs('');
     if (user) {
       signOut(auth);
       msg.textContent = 'This Google account is not authorized for the admin area.';
