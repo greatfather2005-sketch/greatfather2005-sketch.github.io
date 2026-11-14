@@ -186,27 +186,6 @@
   .admin-msg { margin-top: 12px; color: #a33; font-size: .9rem; min-height: 1.2em; }
   .admin-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid #eef1f6; padding-bottom: 10px; }
   .admin-head span { color: #5b6675; font-size: .9rem; }
-  #pdfFilter {
-    width: 100%;
-    max-width: 420px;
-    margin: 8px 0 12px;
-    padding: 8px 14px;
-    border: 1px solid #cfd6e2;
-    border-radius: 10px;
-    font-size: .9rem;
-  }
-  .pdf-list { list-style: none; max-height: 420px; overflow-y: auto; border-top: 1px solid #eef1f6; }
-  .pdf-list li { border-bottom: 1px solid #eef1f6; }
-  .pdf-list a {
-    display: block;
-    padding: 9px 4px;
-    color: var(--navy);
-    text-decoration: none;
-    font-size: .9rem;
-    font-weight: 600;
-  }
-  .pdf-list a:hover { color: var(--navy2); background: #f6f8fb; }
-  .pdf-list .pdf-tag { color: #8a94a5; font-weight: 400; font-size: .8rem; margin-left: 8px; }
   .admin-note { margin-top: 12px; color: #6b7686; font-size: .82rem; }
   @media (max-width: 480px) {
     header h1 { font-size: 1.45rem; }
@@ -553,9 +532,9 @@
       <p>Create and manage exams, students and results in the assessment portal (owner sign-in is required there as well).</p>
       <p><a class="admin-btn" href="https://mnk-academy-portal.web.app/" target="_blank" rel="noopener">Open Assessment Portal</a></p>
       <h3>Academy PDF Files</h3>
-      <input id="pdfFilter" type="search" placeholder="Filter PDF files by name..." aria-label="Filter PDF files by name">
-      <ul id="pdfList" class="pdf-list"></ul>
-      <p class="admin-note">Model-answer and teacher files open only for the owner Google account. Student files are the same files linked publicly on this site.</p>
+      <p>All academy PDF files live in the owner's private Google Drive. Open Drive while signed in with this same Google account to reach them.</p>
+      <p><a class="admin-btn" href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener">Open Google Drive</a></p>
+      <p class="admin-note">Model-answer and teacher files open only for the owner Google account.</p>
     </div>
   </section>
   <div class="platform-note">
@@ -616,41 +595,6 @@ const gate = document.getElementById('adminGate');
 const panel = document.getElementById('adminPanel');
 const msg = document.getElementById('adminMsg');
 const who = document.getElementById('adminWho');
-const PDFS = [];
-
-function renderPdfs(filter) {
-  const ul = document.getElementById('pdfList');
-  ul.innerHTML = '';
-  const q = (filter || '').toLowerCase();
-  PDFS.forEach(function (p) {
-    if (q && p.n.toLowerCase().indexOf(q) === -1) { return; }
-    const li = document.createElement('li');
-    const a = document.createElement('a');
-    a.href = p.u;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    a.textContent = p.n.replace(/\.pdf$/i, '');
-    const tag = /model answers|teacher/i.test(p.n)
-      ? 'owner only'
-      : (/student/i.test(p.n) ? 'student' : '');
-    if (tag) {
-      const s = document.createElement('span');
-      s.className = 'pdf-tag';
-      s.textContent = tag;
-      a.appendChild(s);
-    }
-    li.appendChild(a);
-    ul.appendChild(li);
-  });
-  if (!ul.children.length) {
-    const li = document.createElement('li');
-    li.style.padding = '10px 4px';
-    li.style.color = '#6b7686';
-    li.textContent = 'No files match this filter.';
-    ul.appendChild(li);
-  }
-}
-
 document.getElementById('adminSignIn').addEventListener('click', function () {
   msg.textContent = '';
   signInWithPopup(auth, provider).catch(function (err) {
@@ -661,16 +605,12 @@ document.getElementById('adminSignIn').addEventListener('click', function () {
 document.getElementById('adminSignOut').addEventListener('click', function () {
   signOut(auth);
 });
-document.getElementById('pdfFilter').addEventListener('input', function (e) {
-  renderPdfs(e.target.value);
-});
 
 onAuthStateChanged(auth, function (user) {
   if (user && user.email === OWNER_EMAIL) {
     gate.hidden = true;
     panel.hidden = false;
     who.textContent = 'Signed in as ' + user.email;
-    renderPdfs('');
   } else {
     panel.hidden = true;
     gate.hidden = false;
