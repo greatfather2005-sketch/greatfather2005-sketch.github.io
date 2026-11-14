@@ -137,6 +137,77 @@
     font-size: .85rem;
     padding: 26px 16px 34px;
   }
+
+  /* --- site search --- */
+  nav.sections-nav input#siteSearch {
+    display: inline-block;
+    margin: 4px 6px;
+    padding: 7px 14px;
+    border: 1px solid #cfd6e2;
+    border-radius: 20px;
+    font-size: .9rem;
+    width: min(280px, 82vw);
+    vertical-align: middle;
+    color: var(--ink);
+  }
+  nav.sections-nav input#siteSearch:focus { outline: 2px solid var(--gold); border-color: var(--gold); }
+  #noResults {
+    text-align: center;
+    color: #6b7686;
+    font-style: italic;
+    padding: 26px 10px 6px;
+  }
+  /* --- owner admin --- */
+  .admin-box {
+    background: #fff;
+    border: 1px solid #e3e7ee;
+    border-radius: 12px;
+    padding: 22px 24px;
+    box-shadow: 0 2px 10px rgba(14,34,64,.08);
+  }
+  .admin-box h3 { color: var(--navy); margin: 18px 0 6px; font-size: 1.05rem; }
+  .admin-box h3:first-of-type { margin-top: 14px; }
+  .admin-btn {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 22px;
+    border: 0;
+    border-radius: 24px;
+    background: var(--navy);
+    color: #fff;
+    font-weight: 700;
+    font-size: .92rem;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .admin-btn:hover { background: var(--navy2); }
+  .admin-btn-ghost { background: #eef1f6; color: var(--navy); margin-top: 0; }
+  .admin-btn-ghost:hover { background: #e2e7f0; }
+  .admin-msg { margin-top: 12px; color: #a33; font-size: .9rem; min-height: 1.2em; }
+  .admin-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid #eef1f6; padding-bottom: 10px; }
+  .admin-head span { color: #5b6675; font-size: .9rem; }
+  #pdfFilter {
+    width: 100%;
+    max-width: 420px;
+    margin: 8px 0 12px;
+    padding: 8px 14px;
+    border: 1px solid #cfd6e2;
+    border-radius: 10px;
+    font-size: .9rem;
+  }
+  .pdf-list { list-style: none; max-height: 420px; overflow-y: auto; border-top: 1px solid #eef1f6; }
+  .pdf-list li { border-bottom: 1px solid #eef1f6; }
+  .pdf-list a {
+    display: block;
+    padding: 9px 4px;
+    color: var(--navy);
+    text-decoration: none;
+    font-size: .9rem;
+    font-weight: 600;
+  }
+  .pdf-list a:hover { color: var(--navy2); background: #f6f8fb; }
+  .pdf-list .pdf-tag { color: #8a94a5; font-weight: 400; font-size: .8rem; margin-left: 8px; }
+  .admin-note { margin-top: 12px; color: #6b7686; font-size: .82rem; }
   @media (max-width: 480px) {
     header h1 { font-size: 1.45rem; }
     .grid { grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -164,8 +235,11 @@
   <a href="#sounds">Sounds</a>
   <a href="#songs">Songs</a>
   <a href="#brief-explanation">Brief Explanation</a>
+  <a href="#admin">Admin</a>
+  <input id="siteSearch" type="search" placeholder="Search videos..." aria-label="Search videos">
 </nav>
 <main>
+  <p id="noResults" hidden>No matching videos. Try another word.</p>
   <section class="video-section" id="british">
     <h2>British</h2>
     <p class="section-sub">British curriculum lessons</p>
@@ -462,6 +536,28 @@
       </a>
     </div>
   </section>
+  <section class="video-section" id="admin">
+    <h2>Owner Admin</h2>
+    <p class="section-sub">Private area for the academy owner. Sign in with the owner Google account to reach the Interactive Assessments portal and the academy PDF files.</p>
+    <div id="adminGate" class="admin-box">
+      <p>This area is restricted to the academy owner. Sign in with Google to continue.</p>
+      <button id="adminSignIn" class="admin-btn" type="button">Sign in with Google</button>
+      <p id="adminMsg" class="admin-msg" role="status"></p>
+    </div>
+    <div id="adminPanel" class="admin-box" hidden>
+      <div class="admin-head">
+        <span id="adminWho"></span>
+        <button id="adminSignOut" class="admin-btn admin-btn-ghost" type="button">Sign out</button>
+      </div>
+      <h3>Interactive Assessments</h3>
+      <p>Create and manage exams, students and results in the assessment portal (owner sign-in is required there as well).</p>
+      <p><a class="admin-btn" href="https://mnk-academy-portal.web.app/" target="_blank" rel="noopener">Open Assessment Portal</a></p>
+      <h3>Academy PDF Files</h3>
+      <input id="pdfFilter" type="search" placeholder="Filter PDF files by name..." aria-label="Filter PDF files by name">
+      <ul id="pdfList" class="pdf-list"></ul>
+      <p class="admin-note">Model-answer and teacher files open only for the owner Google account. Student files are the same files linked publicly on this site.</p>
+    </div>
+  </section>
   <div class="platform-note">
     <strong>Student platform coming soon.</strong><br>
     A dedicated learning platform with grade-based access for students is on the way.
@@ -470,6 +566,123 @@
 <footer>
   Mr. Mohammed Nabil Khalil Academy &middot; Contact us on WhatsApp: +20 102 371 1755
 </footer>
+
+<script>
+(function () {
+  var input = document.getElementById('siteSearch');
+  var noRes = document.getElementById('noResults');
+  var sections = Array.prototype.slice.call(document.querySelectorAll('main section.video-section'));
+  function apply() {
+    var q = input.value.trim().toLowerCase();
+    var totalVisible = 0;
+    sections.forEach(function (sec) {
+      if (sec.id === 'admin') { return; }
+      var items = sec.querySelectorAll('.grid > *');
+      var vis = 0;
+      items.forEach(function (el) {
+        var t = (el.textContent || '').toLowerCase();
+        var img = el.querySelector('img');
+        if (img && img.alt) { t += ' ' + img.alt.toLowerCase(); }
+        var show = !q || t.indexOf(q) !== -1;
+        el.style.display = show ? '' : 'none';
+        if (show) { vis++; }
+      });
+      if (items.length) {
+        sec.style.display = (q && vis === 0) ? 'none' : '';
+        totalVisible += vis;
+      }
+    });
+    noRes.hidden = !q || totalVisible > 0;
+  }
+  input.addEventListener('input', apply);
+})();
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+const OWNER_EMAIL = "greatfather2005@gmail.com";
+const firebaseConfig = {
+  "apiKey": "AIzaSyAbkHTF4gKGGyJW7COU9dlQe5tyPGKdBG0",
+  "authDomain": "mnk-academy-portal.firebaseapp.com",
+  "projectId": "mnk-academy-portal",
+  "appId": "1:172755991211:web:5c14bd361654e6b1f815ee"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+const gate = document.getElementById('adminGate');
+const panel = document.getElementById('adminPanel');
+const msg = document.getElementById('adminMsg');
+const who = document.getElementById('adminWho');
+const PDFS = [{"n": "Aladdin and the Magic Lamp - Student PDF.pdf", "u": "https://drive.google.com/file/d/1psqjDg91BrkMc6kdPfp4qRZT06CrY-s0/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "Ali Baba and the Forty Thieves - Student PDF.pdf", "u": "https://drive.google.com/file/d/1HKUyFpijLAhcU_QAQAgotMige-ZRyzGQ/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "Cinderella - Student PDF.pdf", "u": "https://drive.google.com/file/d/1nTgGquUlX4OZm0siBOqwg8OxvZ39lx3_/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "Goldilocks and the Three Bears - Student PDF.pdf", "u": "https://drive.google.com/file/d/1JhSPfVPuChp1FHZChHjP2t3W0Y_F0-kM/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "Hansel and Gretel - Student PDF.pdf", "u": "https://drive.google.com/file/d/1RJr6Z9WAvoaMWeR4pzF2ELsdnowhkEC_/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "Jack and the Beanstalk - Student PDF.pdf", "u": "https://drive.google.com/file/d/1OGtTVS2B_blabKHIF--Ndl9O39xrqfek/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "Literary Devices - Student PDF (MNK-09-Q).pdf", "u": "https://drive.google.com/file/d/1aHXtg-sg7RAvXG_oIpCf67y3KFa5ubxu/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "Little Red Riding Hood - Student PDF.pdf", "u": "https://drive.google.com/file/d/1J10Ppey9rUQBrfEl1r9LK3Gu86uILTlK/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-19-A_Model_Answers_Teacher_Guide.pdf", "u": "https://drive.google.com/file/d/1WOU9vuY1u5VUaH9pOnGZD3J9pcMV7-BI/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-19-Q_Reading_Writing_Bridge.pdf", "u": "https://drive.google.com/file/d/1FRL9vpfeE5xHooU1MtTkYct396Ab4Rlg/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-37 Brief Explanation - Conjunctions (Student).pdf", "u": "https://drive.google.com/file/d/1QV8hKRYesn4ZvZ3D1a20TWafvd50FxgO/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-38 Brief Explanation - Present Simple (Student).pdf", "u": "https://drive.google.com/file/d/1zQj24X5LAdhXd3ZKpuhpjGVG-_cAUNfL/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-39 Brief Explanation - Past Simple (Student).pdf", "u": "https://drive.google.com/file/d/1NCbczDT-cun9_W9J276OxmttMCRO0j8C/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-40 Brief Explanation - Present Continuous (Student).pdf", "u": "https://drive.google.com/file/d/1vh8PoSy_rr0vxROavTVb-2yJ0avH1RLK/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-41 Brief Explanation - Past Continuous (Student).pdf", "u": "https://drive.google.com/file/d/1VoyxuO_DfgOhTlAG0xgJlGEKAAv2jahk/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-42 Brief Explanation - Will vs Be Going To (Student).pdf", "u": "https://drive.google.com/file/d/1gMh0XoEVXSVpgzICXZKgDcNmr8m70uip/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-43 Brief Explanation - Present Perfect (Student).pdf", "u": "https://drive.google.com/file/d/1z7t4BlNAyXYyZSCAeOe8J2tUhWQK7jyW/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-44 Brief Explanation - Verbs (Student).pdf", "u": "https://drive.google.com/file/d/1yKZKub0wR1OlfmCnPpW9_rFBsjKUTBr-/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-45 Brief Explanation - Modifiers (Student).pdf", "u": "https://drive.google.com/file/d/1pHp195XR9jfTzRLAM0ic3oarEsypVYpS/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-46 Brief Explanation - Word Classes (Student).pdf", "u": "https://drive.google.com/file/d/1OUCJULNa2mJYxJVO7S4Aj0ciawRDpKT7/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-47 Brief Explanation - Phrases (Student).pdf", "u": "https://drive.google.com/file/d/1x7QVpe17Sv4dk2miiEp7Z13bKm-8FkFX/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-48 Brief Explanation - Punctuation (Student).pdf", "u": "https://drive.google.com/file/d/1ahJwRVXzuK-6dB9p_E7mQ4k9OFQST31L/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-49 Brief Explanation - Writing Fiction (Student).pdf", "u": "https://drive.google.com/file/d/1HcQMkgqDcBZAUV67sW63VGjR_dTQJU4s/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-50 Brief Explanation - Argumentative Writing (Student).pdf", "u": "https://drive.google.com/file/d/1nh_SjirvFyf8I1v4jRIiymkEMZ-r-FLN/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-51 Brief Explanation - Vocabulary Level E Unit 3 (Student).pdf", "u": "https://drive.google.com/file/d/1bRVaCocIGYjDf4cIAn8yNVdLABzm6xVu/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-52 Brief Explanation - Vocabulary Level E Unit 4 (Student).pdf", "u": "https://drive.google.com/file/d/1oZpLiz_lYducWmAi752GEMPiE6-kh7Y4/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-53 Brief Explanation - Vocabulary Power Up Set 1 (Student).pdf", "u": "https://drive.google.com/file/d/1W07vOJA9Wn-LC5WgMf2LJNgE2_CD5_-t/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-54 Brief Explanation - Rogue Wave Vocabulary (Student).pdf", "u": "https://drive.google.com/file/d/1lQln7xQBCpQobzlwxs-_XBdmE4mmNXy5/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-55 Brief Explanation - High School Key Skills (Student).pdf", "u": "https://drive.google.com/file/d/1AgUFh82-IAGOeQv7o8pFz1YbXgLXd0LF/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-56-A - Vocabulary Set 1 - Grade 12 - Model Answers.pdf", "u": "https://drive.google.com/file/d/1Y_7gdwAw_pw9o6qHG-9cqObfH136u9lL/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-56-Q - Vocabulary Set 1 - Grade 12 - Questions.pdf", "u": "https://drive.google.com/file/d/1s6DVsrGS42FoOWYOAYOhC4124L6XMpqm/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-57-A - Phrases and Modifiers - Grade 12 - Model Answers.pdf", "u": "https://drive.google.com/file/d/1QnJ5dixi2978SlQKhgMHMEQZX-kIIbKx/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-57-Q - Phrases and Modifiers - Grade 12 - Questions.pdf", "u": "https://drive.google.com/file/d/1Q2jAozYJK1Topi8jlKjzwSzgbL54G3_L/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-58-A - Rogue Wave Vocabulary - Grade 7 - Model Answers.pdf", "u": "https://drive.google.com/file/d/1ZIZajpuStpS1gLXJT4YBMBswAvxPgKoq/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-58-Q - Rogue Wave Vocabulary - Grade 7 - Questions.pdf", "u": "https://drive.google.com/file/d/1bxXxhFLkUWTgS6BUTzhnKV4eiVOKDDUC/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-59-A - Vocabulary Workshop E Unit 4 Words 1-10 - Grade 10 - Model Answers.pdf", "u": "https://drive.google.com/file/d/1Jxqks2SrryzS9UmOQ_FBkfHTkNa3vR56/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-59-Q - Vocabulary Workshop E Unit 4 Words 1-10 - Grade 10 - Questions.pdf", "u": "https://drive.google.com/file/d/14CGBmosM6MpaIwImRq2uNEBksl9tyAdh/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-60-A - Semicolons and Commas - Model Answers.pdf", "u": "https://drive.google.com/file/d/1FYEnlWTFNmI6xAjFk8FLWFSQwT8Rubhl/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-60-Q - Semicolons and Commas - Questions.pdf", "u": "https://drive.google.com/file/d/1IzLDrnmj-eunG8bLNXhss92yKh-AjhtT/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-62-A - Vocabulary Set 2 - Grade 12 - Model Answers.pdf", "u": "https://drive.google.com/file/d/1PscY3OSO9ukDt5YpVh_sOTLAo_qKvnXQ/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "MNK-62-Q - Vocabulary Set 2 - Grade 12 - Questions.pdf", "u": "https://drive.google.com/file/d/10wIV41z5OHDc71IbCNmovMuqkN6aTIzj/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "Parts of Speech Song - Teacher Package.pdf", "u": "https://drive.google.com/file/d/1wMbnMo4rIw2DpnPzdzjbsI6KP3i0bl_T/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "Parts of Speech Song Lyrics - Student PDF (MNK-12).pdf", "u": "https://drive.google.com/file/d/1oV4HwcmPT_oyV2lB9mqtPZMvZ-2IOGd2/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "Phrases and Modifiers - Student PDF (MNK-10-Q).pdf", "u": "https://drive.google.com/file/d/1JfQN5nlws44m-Laewy3wz4NyiXMmABro/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "Pinocchio - Student PDF.pdf", "u": "https://drive.google.com/file/d/1SB_Jf9v8c6m2ykGcW6eMzpGPnLVMTm4a/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "PresentContinuous-MNK-15-A.pdf", "u": "https://drive.google.com/file/d/1AwyMZzxpoPFByc0o-99L6850YLTADzb5/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "PresentContinuous-MNK-15-sample.pdf", "u": "https://drive.google.com/file/d/1u-EmlrIPLiflk_MVIf25JHTViJYF6rCY/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "PresentContinuous-MNK-15.pdf", "u": "https://drive.google.com/file/d/1jsuaCRxhisy8F4nbMfkdGfo6LO6BKBtv/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "PresentContinuous-MNK-15T-AR.pdf", "u": "https://drive.google.com/file/d/1X5i0T29m-ReVDtr3Qn8Vow--kZqz7Tvd/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "PresentContinuous-MNK-15T-EN.pdf", "u": "https://drive.google.com/file/d/1Xtve9ohZrSToDKjN9aYcH-go5wLuiWeq/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "Rogue Wave Vocabulary - Student PDF (MNK-11-Q).pdf", "u": "https://drive.google.com/file/d/19UL6zn7YWs7OOsdRVnq5YZSjRbnSC0M2/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "Snow White and the Seven Dwarfs - Student PDF.pdf", "u": "https://drive.google.com/file/d/1KhWf666v2AU3Abs-RorRtvQTkwYuvKDr/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "The Boy Who Cried Wolf - Student PDF.pdf", "u": "https://drive.google.com/file/d/1I7ujAeX_zhwZ8bminEyu7ZLMFjMDFmny/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "The Fisherman and the Jinni - Student PDF.pdf", "u": "https://drive.google.com/file/d/1gYhXpePuOQ8FKUyMHXF3Oz9juhDWDBZr/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "The Fox and the Grapes - Student PDF.pdf", "u": "https://drive.google.com/file/d/18AGDeYeceINMLMK4Pl9uIoZST8C-q3YG/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "The Gingerbread Man - Student PDF.pdf", "u": "https://drive.google.com/file/d/1D8DWqSLFbMxFamK0egdvoJfNBNIXNuvI/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "The Lion and the Mouse - Student PDF.pdf", "u": "https://drive.google.com/file/d/1psFTn2Ntne86I7hJVkbAxznm1eaIw5IH/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "The Pied Piper of Hamelin - Student PDF.pdf", "u": "https://drive.google.com/file/d/1LyqZlCQjil-SnNAPFM8BfjNT9t4z6Plb/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "The Three Billy Goats Gruff - Student PDF.pdf", "u": "https://drive.google.com/file/d/1RVoyQLFq1MpMAMIU4Y38JQxySkbcTKXS/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "The Three Little Pigs - Student PDF.pdf", "u": "https://drive.google.com/file/d/1w6EkXdZvWm4jLMysO-cJiNaPue0IVhPj/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "The Tortoise and the Hare - Student PDF.pdf", "u": "https://drive.google.com/file/d/1E5XXP9ZHnM9UWlGubZrPUa2qlabME3Nk/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "The Town Mouse and the Country Mouse - Student PDF.pdf", "u": "https://drive.google.com/file/d/1A4VwbV0fM-4luNohjJYXAsShJmNx4NB3/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "The Ugly Duckling (corrected ending) - Student PDF.pdf", "u": "https://drive.google.com/file/d/1WrdrVtdmVyxRCOn-b8cErz8PppTjtmaR/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "The Wind and the Sun - Student PDF.pdf", "u": "https://drive.google.com/file/d/1b4fS_vxOeQ-4-CgWkpa2kcb9EyQuHsU0/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}, {"n": "Vocabulary Power-Up Set 1 - Student PDF.pdf", "u": "https://drive.google.com/file/d/1kZd5yrc8ls72WpmMZqo69iHt9SiNkklY/view?usp=drivesdk&authuser=greatfather2005%40gmail.com"}];
+
+function renderPdfs(filter) {
+  const ul = document.getElementById('pdfList');
+  ul.innerHTML = '';
+  const q = (filter || '').toLowerCase();
+  PDFS.forEach(function (p) {
+    if (q && p.n.toLowerCase().indexOf(q) === -1) { return; }
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = p.u;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = p.n.replace(/\.pdf$/i, '');
+    const tag = /model answers|teacher/i.test(p.n)
+      ? 'owner only'
+      : (/student/i.test(p.n) ? 'student' : '');
+    if (tag) {
+      const s = document.createElement('span');
+      s.className = 'pdf-tag';
+      s.textContent = tag;
+      a.appendChild(s);
+    }
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
+  if (!ul.children.length) {
+    const li = document.createElement('li');
+    li.style.padding = '10px 4px';
+    li.style.color = '#6b7686';
+    li.textContent = 'No files match this filter.';
+    ul.appendChild(li);
+  }
+}
+
+document.getElementById('adminSignIn').addEventListener('click', function () {
+  msg.textContent = '';
+  signInWithPopup(auth, provider).catch(function (err) {
+    if (err && err.code === 'auth/popup-closed-by-user') { return; }
+    msg.textContent = 'Sign-in failed: ' + ((err && err.code) || 'unknown error');
+  });
+});
+document.getElementById('adminSignOut').addEventListener('click', function () {
+  signOut(auth);
+});
+document.getElementById('pdfFilter').addEventListener('input', function (e) {
+  renderPdfs(e.target.value);
+});
+
+onAuthStateChanged(auth, function (user) {
+  if (user && user.email === OWNER_EMAIL) {
+    gate.hidden = true;
+    panel.hidden = false;
+    who.textContent = 'Signed in as ' + user.email;
+    renderPdfs('');
+  } else {
+    panel.hidden = true;
+    gate.hidden = false;
+    if (user) {
+      signOut(auth);
+      msg.textContent = 'This Google account is not authorized for the admin area.';
+    }
+  }
+});
+</script>
 </body>
 </html>
 
