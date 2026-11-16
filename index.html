@@ -238,6 +238,17 @@
     .grid { grid-template-columns: 1fr 1fr; gap: 12px; }
     .card-title { font-size: .82rem; padding: 8px 10px 12px; }
   }
+  /* The complete academy description gently fades without moving the layout. */
+  header p.sub {
+    animation: academy-description-fade 12s ease-in-out infinite;
+  }
+  @keyframes academy-description-fade {
+    0%, 65%, 90%, 100% { opacity: 1; }
+    76%, 79% { opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    header p.sub { animation: none; opacity: 1; }
+  }
 </style>
 </head>
 <body>
