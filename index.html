@@ -6,6 +6,7 @@
 <title>Mr. Mohammed Nabil Khalil Academy</title>
 <meta name="description" content="English lessons and stories from Mr. Mohammed Nabil Khalil Academy: American, British and National curricula. Contact us on WhatsApp.">
 <style>
+[hidden]{display:none!important;} 
   :root {
     --navy: #0e2240;
     --navy2: #16325c;
@@ -272,8 +273,9 @@
   <a href="#sounds">Sounds</a>
   <a href="#songs">Songs</a>
   <a href="#brief-explanation">Brief Explanation</a>
-  <a href="#admin">Admin</a>
-  <input id="siteSearch" type="search" placeholder="Search videos..." aria-label="Search videos">
+  <a href="#admin" id="ownerAdminNav" hidden>Admin</a>
+  <button id="accountSignIn" class="admin-btn" type="button">Sign in</button>
+    <input id="siteSearch" type="search" placeholder="Search videos..." aria-label="Search videos">
 </nav>
 <main>
   <p id="noResults" hidden>No matching videos. Try another word.</p>
@@ -697,7 +699,7 @@
       </a>
     </div>
   </section>
-  <section class="video-section" id="admin">
+  <section class="video-section" id="admin" hidden>
     <h2>Owner Admin</h2>
     <p class="section-sub">Private area for the academy owner. Sign in with the owner Google account to reach the Interactive Assessments portal and the academy PDF files.</p>
     <div id="adminGate" class="admin-box">
@@ -830,19 +832,25 @@ async function loadCatalog() {
 document.getElementById('pdfFilter').addEventListener('input', function (e) {
   renderPdfs(e.target.value);
 });
-document.getElementById('adminSignIn').addEventListener('click', function () {
+function ownerAccountSignIn() {
   msg.textContent = '';
   signInWithPopup(auth, provider).catch(function (err) {
     if (err && err.code === 'auth/popup-closed-by-user') { return; }
     msg.textContent = 'Sign-in failed: ' + ((err && err.code) || 'unknown error');
   });
-});
+}
+document.getElementById('adminSignIn').addEventListener('click', ownerAccountSignIn);
+document.getElementById('accountSignIn').addEventListener('click', ownerAccountSignIn);
 document.getElementById('adminSignOut').addEventListener('click', function () {
   signOut(auth);
 });
 
 onAuthStateChanged(auth, function (user) {
-  if (user && user.email === OWNER_EMAIL) {
+  const owner = !!(user && user.emailVerified && user.email.toLowerCase() === OWNER_EMAIL);
+  document.getElementById('ownerAdminNav').hidden = !owner;
+  document.getElementById('admin').hidden = !owner;
+  document.getElementById('accountSignIn').hidden = owner;
+  if (owner) {
     gate.hidden = true;
     panel.hidden = false;
     who.textContent = 'Signed in as ' + user.email;
