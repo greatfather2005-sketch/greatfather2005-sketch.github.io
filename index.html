@@ -32,6 +32,32 @@
     object-fit: cover;
     box-shadow: 0 4px 18px rgba(0,0,0,.35);
   }
+  header img.logo {
+    width: min(280px, 68vw);
+    height: auto;
+    filter: drop-shadow(0 6px 22px rgba(0,0,0,.45));
+  }
+  .tagline-anim {
+    margin-top: 14px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: .4px;
+    color: var(--gold2);
+    min-height: 1.7em;
+  }
+  .tagline-anim span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity .9s ease, transform .9s ease;
+  }
+  .tagline-anim span.show {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tagline-anim span { transition: none; transform: none; opacity: 1; }
+  }
   header h1 {
     margin-top: 18px;
     font-size: 1.9rem;
@@ -216,9 +242,10 @@
 </head>
 <body>
 <header>
-  <img class="badge" src="1-badge.jpg" alt="Mr. Mohammed Nabil Khalil Academy badge">
+  <img class="logo" src="1-logo-transparent.png" alt="Mr. Mohammed Nabil Khalil Academy logo" width="280" height="264">
   <h1>Mr. Mohammed Nabil Khalil Academy</h1>
   <p class="sub">English for American, British and National curricula: clear video lessons, stories with Arabic support, vocabulary and exam practice.</p>
+  <p class="tagline-anim"><span id="tagline" class="show">Your Gateway to Excellence in English</span></p>
   <div class="cta">
     <a class="btn btn-wa" href="https://wa.me/201023711755" target="_blank" rel="noopener">Chat on WhatsApp</a>
     <a class="btn btn-yt" href="https://www.youtube.com/@MrMohammedNabilKhalil" target="_blank" rel="noopener">YouTube Channel</a>
@@ -821,6 +848,30 @@ onAuthStateChanged(auth, function (user) {
   }
 });
 </script>
+<script>
+(function () {
+  var phrases = [
+    "Your Gateway to Excellence in English",
+    "Learn \u2022 Practice \u2022 Excel",
+    "American, British and National curricula",
+    "Video lessons, stories, vocabulary and exam practice"
+  ];
+  var el = document.getElementById('tagline');
+  if (!el) { return; }
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+  var i = 0;
+  el.classList.add('show');
+  setInterval(function () {
+    el.classList.remove('show');
+    setTimeout(function () {
+      i = (i + 1) % phrases.length;
+      el.textContent = phrases[i];
+      el.classList.add('show');
+    }, 900);
+  }, 4200);
+})();
+</script>
+
 </body>
 </html>
 
