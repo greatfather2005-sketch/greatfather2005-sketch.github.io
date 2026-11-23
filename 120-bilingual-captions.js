@@ -29,12 +29,13 @@ if(section&&!document.getElementById('cambridge-writing-shorts')){
   if(standalone) return;
   const box=document.createElement('div');
   box.id='academy-app-install';box.dir='rtl';
-  box.style.cssText='max-width:1050px;margin:20px auto;padding:16px 20px;border:1px solid #d8dfeb;border-radius:16px;background:#fff;color:#0e2240;font:16px/1.7 system-ui,sans-serif';
-  const text=document.createElement('p');text.style.margin='0';text.textContent='أضف الأكاديمية إلى الشاشة الرئيسية. مجانا، ومشاهدة الفيديوهات تحتاج إلى الإنترنت.';box.appendChild(text);
-  const action=document.createElement('button');action.type='button';action.textContent='إضافة الأكاديمية إلى الموبايل';action.style.cssText='margin-top:10px;border:0;border-radius:22px;padding:10px 18px;background:#0e2240;color:white;font:inherit;cursor:pointer';box.appendChild(action);
+  box.style.cssText='margin:22px auto 0;text-align:center;max-width:520px;color:#fff;font:15px/1.7 system-ui,sans-serif';
+  const action=document.createElement('button');action.type='button';action.setAttribute('aria-label','تثبيت تطبيق الأكاديمية');action.title='تثبيت تطبيق الأكاديمية';action.style.cssText='display:inline-flex;flex-direction:column;align-items:center;gap:9px;border:0;padding:0;background:transparent;color:white;font:700 15px/1.5 system-ui,sans-serif;cursor:pointer';
+  const appIcon=document.createElement('img');appIcon.src='/1-academy-icon-192.png';appIcon.alt='';appIcon.width=72;appIcon.height=72;appIcon.style.cssText='width:72px;height:72px;border-radius:18px;box-shadow:0 4px 18px #0004;border:1px solid #d4af37';action.appendChild(appIcon);
+  const label=document.createElement('span');label.textContent='تثبيت تطبيق الأكاديمية';action.appendChild(label);box.appendChild(action);
   const help=document.createElement('p');help.hidden=true;help.style.margin='10px 0 0';
   help.textContent=/iPhone|iPad|iPod/.test(navigator.userAgent)?'افتح الصفحة في Safari، ثم اضغط مشاركة، ثم إضافة إلى الشاشة الرئيسية، ثم إضافة.':'افتح الصفحة في Chrome، ثم افتح قائمة المتصفح ⋮ واختر تثبيت التطبيق أو إضافة إلى الشاشة الرئيسية.';box.appendChild(help);
-  const main=document.querySelector('main');if(main) main.prepend(box);
+  const cta=document.querySelector('header .cta');if(cta) cta.insertAdjacentElement('afterend',box);
   let installPrompt;
   window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;});
   action.addEventListener('click',async()=>{if(installPrompt){await installPrompt.prompt();const result=await installPrompt.userChoice;if(result.outcome==='accepted')box.remove();installPrompt=null;}else{help.hidden=!help.hidden;}});
